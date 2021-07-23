@@ -29,15 +29,43 @@ function checksCreateTodosUserAvailability(request, response, next) {
       return next();
     }
 
-  return response.status(403).send();
+  return response.status(403);
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers;
+  const {id} = request.params;
+
+  if(!validate(id)){
+    return response.status(400).json({error: "invalid ID!"});
+  }
+
+  const foundUser = users.find((user) => user.username == username);
+  if(!foundUser){
+    return response.status(404).json({error: "username not found!"});
+  }
+
+  const foundTodo = foundUser.todos.find((todo) => todo.id == id);
+  if(!foundTodo){
+    return response.status(404).json({error: "todo not found!"});
+  }
+
+  request.user = foundUser;
+  request.todo = foundTodo;
+
+  return next();
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const {id} = request.params;
+
+  const foundUser = users.find((user) => user.id == id);
+  if(!foundUser){
+    return response.status(404).json({error: "user not found!"});
+  }
+
+  request.user = foundUser;
+  return next();
 }
 
 app.post('/users', (request, response) => {
