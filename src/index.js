@@ -10,11 +10,26 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers;
+
+  const foundUser = users.find((user) => user.username == username);
+  if(!foundUser){
+    return response.status(404).json({error: "username not found!"});
+  }
+
+  request.user = foundUser;
+  return next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const {user} = request;
+
+  if(user.pro == true ||
+    (user.pro == false && user.todos.length < 10)){
+      return next();
+    }
+
+  return response.status(403).send();
 }
 
 function checksTodoExists(request, response, next) {
